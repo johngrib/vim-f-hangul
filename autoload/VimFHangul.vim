@@ -42,6 +42,7 @@ let g:vim_f_hangul_last_command = ''
 
 let s:forward = 'zps'
 let s:backward = 'pbs'
+let s:backwardEnd = 'pbes'
 
 function! VimFHangul#forwardLookup() range
 
@@ -62,19 +63,10 @@ endfunction
 function! s:lookup(char, count, flag)
 
     let g:vim_f_hangul_history_char = a:char
-    let l:searchStr = ''
-    let l:count = a:count
+    let l:searchStr = s:createQuery(a:char)
 
     let l:success = 1
-    if has_key(s:alias, a:char)
-        let l:alias = get(s:alias, a:char)
-        let l:start = l:alias['start']
-        let l:end = l:alias['end']
-        let l:searchStr = '['.escape(a:char, '\\').'\d'.l:start.'-\d'.l:end.']'
-    else
-        let l:searchStr = '['.escape(a:char, '\\').']'
-    endif
-
+    let l:count = a:count
     while l:success == 1 && l:count > 0
         let l:success = search(l:searchStr, a:flag, line('.'))
         let l:count -= 1
@@ -92,21 +84,21 @@ function! VimFHangul#tillBefore()
 
 endfunction
 
+" 검색에 사용할 regex string을 생성한다
+function! s:createQuery(char)
+    if !has_key(s:alias, a:char)
+        return '['.escape(a:char, '\\').']'
+    endif
+    let l:alias = get(s:alias, a:char)
+    let l:start = l:alias['start']
+    let l:end = l:alias['end']
+    return '['.escape(a:char, '\\').'\d'.l:start.'-\d'.l:end.']'
+endfunction
+
 function! s:tillBefore(char)
     let g:vim_f_hangul_history_char = a:char
-    let l:searchStr = ''
-
-    let l:success = 0
-    if has_key(s:alias, a:char)
-        let l:alias = get(s:alias, a:char)
-        let l:start = l:alias['start']
-        let l:end = l:alias['end']
-        let l:searchStr = '['.escape(a:char, '\\').'\d'.l:start.'-\d'.l:end.']'
-    else
-        let l:searchStr = '['.escape(a:char, '\\').']'
-    endif
-
-    let l:success = search('.' . l:searchStr, 'zp', line('.'))
+    let l:searchStr = s:createQuery(a:char)
+    let l:success = search('.' . l:searchStr, s:forward, line('.'))
     let g:vim_f_hangul_history = l:searchStr
 endfunction
 
@@ -119,19 +111,8 @@ endfunction
 
 function! s:tillAfter(char)
     let g:vim_f_hangul_history_char = a:char
-    let l:searchStr = ''
-
-    let l:success = 0
-    if has_key(s:alias, a:char)
-        let l:alias = get(s:alias, a:char)
-        let l:start = l:alias['start']
-        let l:end = l:alias['end']
-        let l:searchStr = '['.escape(a:char, '\\').'\d'.l:start.'-\d'.l:end.']'
-    else
-        let l:searchStr = '['.escape(a:char, '\\').']'
-    endif
-
-    let l:success = search(l:searchStr . '.', 'pbe', line('.'))
+    let l:searchStr = s:createQuery(a:char)
+    let l:success = search(l:searchStr . '.', s:backwardEnd, line('.'))
     let g:vim_f_hangul_history = l:searchStr
 endfunction
 
