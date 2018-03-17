@@ -63,7 +63,7 @@ function! VimFHangul#forwardLookup()
 
 endfunction
 
-function! VimFHangul#forwardLookupRepeat()
+function! VimFHangul#repeat()
 
     if s:history == '' || s:lastCommand == ''
         return

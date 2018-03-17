@@ -5,6 +5,6 @@ if exists('g:loaded_vim_f_hangul') && g:loaded_vim_f_hangul
 endif
 
 nnoremap <silent>q :call VimFHangul#forwardLookup()<CR>
-nnoremap <silent>; :call VimFHangul#forwardLookupRepeat()<CR>
+nnoremap <silent>; :call VimFHangul#repeat()<CR>
 
 let g:loaded_vim_f_hangul = 1
