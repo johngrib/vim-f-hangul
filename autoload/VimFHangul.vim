@@ -40,49 +40,27 @@ let g:vim_f_hangul_history_char = ''
 let g:vim_f_hangul_history = ''
 let g:vim_f_hangul_last_command = ''
 
+let s:forward = 'zps'
+let s:backward = 'pbs'
+
 function! VimFHangul#forwardLookup() range
 
     let l:char = nr2char(getchar())
-    call s:lookup(l:char, v:count1)
+    call s:lookup(l:char, v:count1, s:forward)
     let g:vim_f_hangul_last_command = 'f'
 
-endfunction
-
-function! s:lookup(char, count)
-
-    let g:vim_f_hangul_history_char = a:char
-    let l:searchStr = ''
-    let l:count = a:count
-
-    let l:success = 1
-    if has_key(s:alias, a:char)
-        let l:alias = get(s:alias, a:char)
-        let l:start = l:alias['start']
-        let l:end = l:alias['end']
-        let l:searchStr = '['.escape(a:char, '\\').'\d'.l:start.'-\d'.l:end.']'
-    else
-        let l:searchStr = '['.escape(a:char, '\\').']'
-    endif
-
-    while l:success == 1 && l:count > 0
-        let l:success = search(l:searchStr, 'zps', line('.'))
-        let l:count -= 1
-    endwhile
-
-    let g:vim_f_hangul_history = l:searchStr
-
-    return l:success
 endfunction
 
 function! VimFHangul#backwardLookup() range
 
     let l:char = nr2char(getchar())
-    call s:backwardLookup(l:char, v:count1)
+    call s:lookup(l:char, v:count1, s:backward)
     let g:vim_f_hangul_last_command = 'F'
 
 endfunction
 
-function! s:backwardLookup(char, count)
+function! s:lookup(char, count, flag)
+
     let g:vim_f_hangul_history_char = a:char
     let l:searchStr = ''
     let l:count = a:count
@@ -98,14 +76,13 @@ function! s:backwardLookup(char, count)
     endif
 
     while l:success == 1 && l:count > 0
-        let l:success = search(l:searchStr, 'pbs', line('.'))
+        let l:success = search(l:searchStr, a:flag, line('.'))
         let l:count -= 1
     endwhile
 
     let g:vim_f_hangul_history = l:searchStr
 
     return l:success
-
 endfunction
 
 function! VimFHangul#tillBefore()
@@ -167,10 +144,10 @@ function! VimFHangul#repeat()
     let l:searchStr = g:vim_f_hangul_history
 
     if g:vim_f_hangul_last_command ==# 'f'
-        call s:lookup(g:vim_f_hangul_history_char, v:count1)
+        call s:lookup(g:vim_f_hangul_history_char, v:count1, s:forward)
         return
     elseif g:vim_f_hangul_last_command ==# 'F'
-        call s:backwardLookup(g:vim_f_hangul_history_char, v:count1)
+        call s:lookup(g:vim_f_hangul_history_char, v:count1, s:backward)
         return
     elseif g:vim_f_hangul_last_command ==# 't'
         call s:tillBefore(g:vim_f_hangul_history_char)
@@ -191,10 +168,10 @@ function! VimFHangul#backwardRepeat()
     let l:searchStr = g:vim_f_hangul_history
 
     if g:vim_f_hangul_last_command ==# 'f'
-        call s:backwardLookup(g:vim_f_hangul_history_char, v:count1)
+        call s:lookup(g:vim_f_hangul_history_char, v:count1, s:backward)
         return
     elseif g:vim_f_hangul_last_command ==# 'F'
-        call s:lookup(g:vim_f_hangul_history_char, v:count1)
+        call s:lookup(g:vim_f_hangul_history_char, v:count1, s:forward)
         return
     elseif g:vim_f_hangul_last_command ==# 't'
         call s:tillAfter(g:vim_f_hangul_history_char)
