@@ -36,6 +36,7 @@ let s:alias['x'] = s:hrange['ㅌ']
 let s:alias['c'] = s:hrange['ㅊ']
 let s:alias['v'] = s:hrange['ㅍ']
 
+let g:vim_f_hangul_history_char = ''
 let g:vim_f_hangul_history = ''
 let g:vim_f_hangul_last_command = ''
 
@@ -58,8 +59,7 @@ function! VimFHangul#forwardLookup()
     let g:vim_f_hangul_history = l:searchStr
     let g:vim_f_hangul_last_command = 'f'
 
-    if l:success > 0
-    endif
+    return l:success
 
 endfunction
 
@@ -84,9 +84,33 @@ function! VimFHangul#backwardLookup()
     let g:vim_f_hangul_history = l:searchStr
     let g:vim_f_hangul_last_command = 'F'
 
-    if l:success > 0
+    return l:success
+
+endfunction
+
+function! VimFHangul#tillBefore()
+    let l:char = nr2char(getchar())
+    call s:tillBefore(l:char)
+    let g:vim_f_hangul_last_command = 't'
+
+endfunction
+
+function! s:tillBefore(char)
+    let g:vim_f_hangul_history_char = a:char
+    let l:searchStr = ''
+
+    let l:success = 0
+    if has_key(s:alias, a:char)
+        let l:alias = get(s:alias, a:char)
+        let l:start = l:alias['start']
+        let l:end = l:alias['end']
+        let l:searchStr = '['.escape(a:char, '\\').'\d'.l:start.'-\d'.l:end.']'
+    else
+        let l:searchStr = '['.escape(a:char, '\\').']'
     endif
 
+    let l:success = search('.' . l:searchStr, 'zp', line('.'))
+    let g:vim_f_hangul_history = l:searchStr
 endfunction
 
 function! VimFHangul#repeat()
@@ -102,6 +126,9 @@ function! VimFHangul#repeat()
         return
     elseif g:vim_f_hangul_last_command ==# 'F'
         call search(l:searchStr, 'pb', line('.'))
+        return
+    elseif g:vim_f_hangul_last_command ==# 't'
+        call s:tillBefore(g:vim_f_hangul_history_char)
         return
     endif
 
@@ -120,6 +147,9 @@ function! VimFHangul#backwardRepeat()
         return
     elseif g:vim_f_hangul_last_command ==# 'F'
         call search(l:searchStr, 'zp', line('.'))
+        return
+    elseif g:vim_f_hangul_last_command ==# 't'
+        call search(l:searchStr . '.', 'pbe', line('.'))
         return
     endif
 endfunction
