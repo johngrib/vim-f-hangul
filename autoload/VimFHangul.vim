@@ -36,8 +36,8 @@ let s:alias['x'] = s:hrange['ㅌ']
 let s:alias['c'] = s:hrange['ㅊ']
 let s:alias['v'] = s:hrange['ㅍ']
 
-let s:history = ''
-let s:lastCommand = ''
+let g:vim_f_hangul_history = ''
+let g:vim_f_hangul_last_command = ''
 
 function! VimFHangul#forwardLookup()
 
@@ -55,8 +55,35 @@ function! VimFHangul#forwardLookup()
     endif
 
     let l:success = search(l:searchStr, 'zp', line('.'))
-    let s:history = l:searchStr
-    let s:lastCommand = 'f'
+    let g:vim_f_hangul_history = l:searchStr
+    let g:vim_f_hangul_last_command = 'f'
+
+    if l:success > 0
+    endif
+
+endfunction
+
+function! VimFHangul#backwardLookup()
+
+    echo 'back'
+    let l:char = nr2char(getchar())
+    let l:searchStr = ''
+
+    let l:success = 0
+    if has_key(s:alias, l:char)
+        let l:alias = get(s:alias, l:char)
+        let l:start = l:alias['start']
+        let l:end = l:alias['end']
+        let l:searchStr = '['.escape(l:char, '\\').'\d'.l:start.'-\d'.l:end.']'
+    else
+        let l:searchStr = '['.escape(l:char, '\\').']'
+    endif
+
+    echo l:searchStr
+
+    let l:success = search(l:searchStr, 'pb', line('.'))
+    let g:vim_f_hangul_history = l:searchStr
+    let g:vim_f_hangul_last_command = 'F'
 
     if l:success > 0
     endif
@@ -65,13 +92,18 @@ endfunction
 
 function! VimFHangul#repeat()
 
-    if s:history == '' || s:lastCommand == ''
+    if g:vim_f_hangul_history == '' || g:vim_f_hangul_last_command == ''
         return
     endif
 
-    if s:lastCommand == 'f'
-        let l:searchStr = s:history
+    let l:searchStr = g:vim_f_hangul_history
+
+    if g:vim_f_hangul_last_command ==# 'f'
         call search(l:searchStr, 'zp', line('.'))
+        return
+    elseif g:vim_f_hangul_last_command ==# 'F'
+        call search(l:searchStr, 'pb', line('.'))
+        return
     endif
 
 endfunction
