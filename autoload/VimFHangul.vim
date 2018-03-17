@@ -65,7 +65,7 @@ function! s:lookup(char, count)
     endif
 
     while l:success == 1 && l:count > 0
-        let l:success = search(l:searchStr, 'zp', line('.'))
+        let l:success = search(l:searchStr, 'zps', line('.'))
         let l:count -= 1
     endwhile
 
