@@ -65,7 +65,6 @@ endfunction
 
 function! VimFHangul#backwardLookup()
 
-    echo 'back'
     let l:char = nr2char(getchar())
     let l:searchStr = ''
 
@@ -108,3 +107,19 @@ function! VimFHangul#repeat()
 
 endfunction
 
+function! VimFHangul#backwardRepeat()
+
+    if g:vim_f_hangul_history == '' || g:vim_f_hangul_last_command == ''
+        return
+    endif
+
+    let l:searchStr = g:vim_f_hangul_history
+
+    if g:vim_f_hangul_last_command ==# 'f'
+        call search(l:searchStr, 'pb', line('.'))
+        return
+    elseif g:vim_f_hangul_last_command ==# 'F'
+        call search(l:searchStr, 'zp', line('.'))
+        return
+    endif
+endfunction
