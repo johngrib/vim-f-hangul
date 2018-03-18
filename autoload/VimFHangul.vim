@@ -46,25 +46,25 @@ let s:status = {'char': '', 'cmd': ''}
 function! VimFHangul#forwardLookup() range
     let s:cmd = 'f'
     let s:char = nr2char(getchar())
-    call s:lookup(v:count1, s:forward)
+    call s:lookup(s:forward)
 endfunction
 
 function! VimFHangul#backwardLookup() range
     let s:cmd = 'F'
     let s:char = nr2char(getchar())
-    call s:lookup(v:count1, s:backward)
+    call s:lookup(s:backward)
 endfunction
 
 function! VimFHangul#tillBefore() range
     let s:cmd = 't'
     let s:char = nr2char(getchar())
-    call s:tillBefore(v:count1, s:forward)
+    call s:tillBefore(s:forward)
 endfunction
 
 function! VimFHangul#tillAfter() range
     let s:cmd = 'T'
     let s:char = nr2char(getchar())
-    call s:tillBefore(v:count1, s:backwardEnd)
+    call s:tillBefore(s:backwardEnd)
 endfunction
 
 " 검색에 사용할 regex string을 생성한다
@@ -79,7 +79,7 @@ function! s:createQuery(char)
 endfunction
 
 " f, F 기능을 구현한다
-function! s:lookup(count, flag)
+function! s:lookup(flag)
 
     let l:searchStr = s:createQuery(s:char)
     let l:success = s:search(l:searchStr, a:flag)
@@ -88,7 +88,7 @@ function! s:lookup(count, flag)
 endfunction
 
 " t, T 기능(검색어 바로 앞에 커서를 점프)을 구현한다
-function! s:tillBefore(count, flag)
+function! s:tillBefore(flag)
     let l:searchStr = s:createQuery(s:char)
 
     if a:flag ==# s:forward
@@ -131,19 +131,19 @@ function! VimFHangul#repeat()
     endif
 
     if s:status['cmd'] ==# 'f'
-        return s:lookup(v:count1, s:forward)
+        return s:lookup(s:forward)
     endif
 
     if s:status['cmd'] ==# 'F'
-        return s:lookup(v:count1, s:backward)
+        return s:lookup(s:backward)
     endif
 
     if s:status['cmd'] ==# 't'
-        return s:tillBefore(v:count1, s:forward)
+        return s:tillBefore(s:forward)
     endif
 
     if s:status['cmd'] ==# 'T'
-        return s:tillBefore(v:count1, s:backwardEnd)
+        return s:tillBefore(s:backwardEnd)
     endif
 
 endfunction
@@ -155,18 +155,18 @@ function! VimFHangul#backwardRepeat()
     endif
 
     if s:status['cmd'] ==# 'f'
-        return s:lookup(v:count1, s:backward)
+        return s:lookup(s:backward)
     endif
 
     if s:status['cmd'] ==# 'F'
-        return s:lookup(v:count1, s:forward)
+        return s:lookup(s:forward)
     endif
 
     if s:status['cmd'] ==# 't'
-        return s:tillBefore(v:count1, s:backwardEnd)
+        return s:tillBefore(s:backwardEnd)
     endif
 
     if s:status['cmd'] ==# 'T'
-        return s:tillBefore(v:count1, s:forward)
+        return s:tillBefore(s:forward)
     endif
 endfunction
