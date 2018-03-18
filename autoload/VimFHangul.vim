@@ -85,7 +85,7 @@ function! s:createQuery(char)
     let l:alias = get(s:alias, a:char)
     let l:start = l:alias['start']
     let l:end = l:alias['end']
-    return '['.escape(a:char, '\\').'\d'.l:start.'-\d'.l:end.']'
+    return '\%#=2['.escape(a:char, '\\').'\d'.l:start.'-\d'.l:end.']'
 endfunction
 
 " f, F 기능을 구현한다
@@ -115,8 +115,8 @@ endfunction
 
 " 검색 정보를 저장한다
 function! s:saveStatus()
-    let l:forward = s:char =~# '^[ft]'
-    let l:until = s:char =~# '^[tT]'
+    let l:forward = s:char =~# '[ft]'
+    let l:until = s:char =~# '[tT]'
     call setcharsearch({'char': s:char, 'forward': l:forward, 'until': l:until})
     let s:status = {'char': s:char, 'cmd': s:cmd}
 endfunction
