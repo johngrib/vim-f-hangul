@@ -77,11 +77,10 @@ function! s:lookup(char, count, flag)
     return l:success
 endfunction
 
-function! VimFHangul#tillBefore()
+function! VimFHangul#tillBefore() range
     let l:char = nr2char(getchar())
-    call s:tillBefore(l:char)
+    call s:tillBefore(l:char, v:count1)
     let g:vim_f_hangul_last_command = 't'
-
 endfunction
 
 " 검색에 사용할 regex string을 생성한다
@@ -95,10 +94,17 @@ function! s:createQuery(char)
     return '['.escape(a:char, '\\').'\d'.l:start.'-\d'.l:end.']'
 endfunction
 
-function! s:tillBefore(char)
+" t 기능(검색어 바로 앞에 커서를 점프)을 구현한다
+function! s:tillBefore(char, count)
     let g:vim_f_hangul_history_char = a:char
     let l:searchStr = s:createQuery(a:char)
-    let l:success = search('.' . l:searchStr, s:forward, line('.'))
+
+    let l:success = 1
+    let l:count = a:count
+    while l:success == 1 && l:count > 0
+        let l:success = search('.' . l:searchStr, s:forward, line('.'))
+        let l:count -= 1
+    endwhile
     let g:vim_f_hangul_history = l:searchStr
 endfunction
 
@@ -131,7 +137,7 @@ function! VimFHangul#repeat()
         call s:lookup(g:vim_f_hangul_history_char, v:count1, s:backward)
         return
     elseif g:vim_f_hangul_last_command ==# 't'
-        call s:tillBefore(g:vim_f_hangul_history_char)
+        call s:tillBefore(g:vim_f_hangul_history_char, v:count1)
         return
     elseif g:vim_f_hangul_last_command ==# 'T'
         call s:tillAfter(g:vim_f_hangul_history_char)
@@ -158,7 +164,7 @@ function! VimFHangul#backwardRepeat()
         call s:tillAfter(g:vim_f_hangul_history_char)
         return
     elseif g:vim_f_hangul_last_command ==# 'T'
-        call s:tillBefore(g:vim_f_hangul_history_char)
+        call s:tillBefore(g:vim_f_hangul_history_char, v:count1)
         return
     endif
 endfunction
