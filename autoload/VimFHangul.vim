@@ -36,6 +36,16 @@ let s:alias['x'] = s:hrange['ㅌ']
 let s:alias['c'] = s:hrange['ㅊ']
 let s:alias['v'] = s:hrange['ㅍ']
 
+" HowToUse: 아랫줄의 Code와 같이 알파벳에 대응하는 한글 초성을 입력하면, 해당
+" 알파벳으로 지정한 초성이 포함된 한글을 검색할 수 있습니다.
+" Code: let g:vim_f_hangul_alias = { 'q': 'ㅅ', 'a': 'ㅂ' }
+if exists('g:vim_f_hangul_alias')
+    for s:key in keys(g:vim_f_hangul_alias)
+        let s:val = g:vim_f_hangul_alias[s:key]
+        let s:alias[s:key] = s:hrange[s:val]
+    endfor
+endif
+
 let s:forward = 'zps'
 let s:backward = 'pbs'
 let s:backwardEnd = 'pbes'
