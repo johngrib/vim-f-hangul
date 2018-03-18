@@ -54,7 +54,7 @@ endfunction
 
 function! VimFHangul#backwardLookup() range
 
-    let l:char = nr2char(getchar())
+    let s:char = nr2char(getchar())
     call s:lookup(v:count1, s:backward)
     let s:cmd = 'F'
 
