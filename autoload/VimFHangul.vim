@@ -60,22 +60,6 @@ function! VimFHangul#backwardLookup() range
 
 endfunction
 
-function! s:lookup(count, flag)
-
-    let l:searchStr = s:createQuery(s:char)
-
-    let l:success = 1
-    let l:count = a:count
-    while l:success == 1 && l:count > 0
-        let l:success = search(l:searchStr, a:flag, line('.'))
-        let l:count -= 1
-    endwhile
-
-    let g:history = l:searchStr
-
-    return l:success
-endfunction
-
 function! VimFHangul#tillBefore() range
     let s:char = nr2char(getchar())
     call s:tillBefore(v:count1, s:forward)
@@ -100,6 +84,19 @@ function! s:createQuery(char)
     return '['.escape(a:char, '\\').'\d'.l:start.'-\d'.l:end.']'
 endfunction
 
+" f, F 기능을 구현한다
+function! s:lookup(count, flag)
+
+    let l:searchStr = s:createQuery(s:char)
+    let l:success = s:search(l:searchStr, a:flag)
+
+    if l:success > 0
+        let g:history = l:searchStr
+    endif
+
+    return l:success
+endfunction
+
 " t, T 기능(검색어 바로 앞에 커서를 점프)을 구현한다
 function! s:tillBefore(count, flag)
     let l:searchStr = s:createQuery(s:char)
@@ -112,7 +109,7 @@ function! s:tillBefore(count, flag)
 
     let l:success = s:search(l:searchStr, a:flag)
 
-    if l:success > 1
+    if l:success > 0
         let g:history = l:searchStr
     endif
 
