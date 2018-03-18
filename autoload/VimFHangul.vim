@@ -36,8 +36,6 @@ let s:alias['x'] = s:hrange['ㅌ']
 let s:alias['c'] = s:hrange['ㅊ']
 let s:alias['v'] = s:hrange['ㅍ']
 
-let g:history = ''
-
 let s:forward = 'zps'
 let s:backward = 'pbs'
 let s:backwardEnd = 'pbes'
@@ -85,12 +83,7 @@ function! s:lookup(count, flag)
 
     let l:searchStr = s:createQuery(s:char)
     let l:success = s:search(l:searchStr, a:flag)
-
-    if l:success > 0
-        let g:history = l:searchStr
-        call s:saveStatus()
-    endif
-
+    call s:saveStatus()
     return l:success
 endfunction
 
@@ -105,11 +98,8 @@ function! s:tillBefore(count, flag)
     endif
 
     let l:success = s:search(l:searchStr, a:flag)
-
-    if l:success > 0
-        let g:history = l:searchStr
-        call s:saveStatus()
-    endif
+    call s:saveStatus()
+    return l:success
 
 endfunction
 
