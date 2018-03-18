@@ -43,34 +43,30 @@ let s:backward = 'pbs'
 let s:backwardEnd = 'pbes'
 let s:char = ''
 let s:cmd = ''
+let s:status = {'char': '', 'cmd': ''}
 
 function! VimFHangul#forwardLookup() range
-
+    let s:cmd = 'f'
     let s:char = nr2char(getchar())
     call s:lookup(v:count1, s:forward)
-    let s:cmd = 'f'
-
 endfunction
 
 function! VimFHangul#backwardLookup() range
-
+    let s:cmd = 'F'
     let s:char = nr2char(getchar())
     call s:lookup(v:count1, s:backward)
-    let s:cmd = 'F'
-
 endfunction
 
 function! VimFHangul#tillBefore() range
+    let s:cmd = 't'
     let s:char = nr2char(getchar())
     call s:tillBefore(v:count1, s:forward)
-    let s:cmd = 't'
 endfunction
 
 function! VimFHangul#tillAfter() range
+    let s:cmd = 'T'
     let s:char = nr2char(getchar())
     call s:tillBefore(v:count1, s:backwardEnd)
-    let s:cmd = 'T'
-
 endfunction
 
 " 검색에 사용할 regex string을 생성한다
@@ -92,6 +88,7 @@ function! s:lookup(count, flag)
 
     if l:success > 0
         let g:history = l:searchStr
+        call s:saveStatus()
     endif
 
     return l:success
@@ -111,8 +108,17 @@ function! s:tillBefore(count, flag)
 
     if l:success > 0
         let g:history = l:searchStr
+        call s:saveStatus()
     endif
 
+endfunction
+
+" 검색 정보를 저장한다
+function! s:saveStatus()
+    let l:forward = s:char =~# '^[ft]'
+    let l:until = s:char =~# '^[tT]'
+    call setcharsearch({'char': s:char, 'forward': l:forward, 'until': l:until})
+    let s:status = {'char': s:char, 'cmd': s:cmd}
 endfunction
 
 function! s:search(searchStr, flag)
@@ -130,43 +136,47 @@ endfunction
 
 function! VimFHangul#repeat()
 
-    if g:history == '' || s:cmd == ''
+    if s:status['char'] == ''
         return
     endif
 
-    if s:cmd ==# 'f'
-        call s:lookup(v:count1, s:forward)
-        return
-    elseif s:cmd ==# 'F'
-        call s:lookup(v:count1, s:backward)
-        return
-    elseif s:cmd ==# 't'
-        call s:tillBefore(v:count1, s:forward)
-        return
-    elseif s:cmd ==# 'T'
-        call s:tillBefore(v:count1, s:backwardEnd)
-        return
+    if s:status['cmd'] ==# 'f'
+        return s:lookup(v:count1, s:forward)
+    endif
+
+    if s:status['cmd'] ==# 'F'
+        return s:lookup(v:count1, s:backward)
+    endif
+
+    if s:status['cmd'] ==# 't'
+        return s:tillBefore(v:count1, s:forward)
+    endif
+
+    if s:status['cmd'] ==# 'T'
+        return s:tillBefore(v:count1, s:backwardEnd)
     endif
 
 endfunction
 
 function! VimFHangul#backwardRepeat()
 
-    if g:history == '' || s:cmd == ''
+    if s:status['char'] == ''
         return
     endif
 
-    if s:cmd ==# 'f'
-        call s:lookup(v:count1, s:backward)
-        return
-    elseif s:cmd ==# 'F'
-        call s:lookup(v:count1, s:forward)
-        return
-    elseif s:cmd ==# 't'
-        call s:tillBefore(v:count1, s:backwardEnd)
-        return
-    elseif s:cmd ==# 'T'
-        call s:tillBefore(v:count1, s:forward)
-        return
+    if s:status['cmd'] ==# 'f'
+        return s:lookup(v:count1, s:backward)
+    endif
+
+    if s:status['cmd'] ==# 'F'
+        return s:lookup(v:count1, s:forward)
+    endif
+
+    if s:status['cmd'] ==# 't'
+        return s:tillBefore(v:count1, s:backwardEnd)
+    endif
+
+    if s:status['cmd'] ==# 'T'
+        return s:tillBefore(v:count1, s:forward)
     endif
 endfunction
