@@ -108,17 +108,24 @@ function! s:tillBefore(char, count)
     let g:vim_f_hangul_history = l:searchStr
 endfunction
 
-function! VimFHangul#tillAfter()
+function! VimFHangul#tillAfter() range
     let l:char = nr2char(getchar())
-    call s:tillAfter(l:char)
+    call s:tillAfter(l:char, v:count1)
     let g:vim_f_hangul_last_command = 'T'
 
 endfunction
 
-function! s:tillAfter(char)
+" T 기능(t의 역방향)을 구현한다
+function! s:tillAfter(char, count)
     let g:vim_f_hangul_history_char = a:char
     let l:searchStr = s:createQuery(a:char)
-    let l:success = search(l:searchStr . '.', s:backwardEnd, line('.'))
+
+    let l:success = 1
+    let l:count = a:count
+    while l:success == 1 && l:count > 0
+        let l:success = search(l:searchStr . '.', s:backwardEnd, line('.'))
+        let l:count -= 1
+    endwhile
     let g:vim_f_hangul_history = l:searchStr
 endfunction
 
@@ -140,7 +147,7 @@ function! VimFHangul#repeat()
         call s:tillBefore(g:vim_f_hangul_history_char, v:count1)
         return
     elseif g:vim_f_hangul_last_command ==# 'T'
-        call s:tillAfter(g:vim_f_hangul_history_char)
+        call s:tillAfter(g:vim_f_hangul_history_char, v:count1)
         return
     endif
 
@@ -161,7 +168,7 @@ function! VimFHangul#backwardRepeat()
         call s:lookup(g:vim_f_hangul_history_char, v:count1, s:forward)
         return
     elseif g:vim_f_hangul_last_command ==# 't'
-        call s:tillAfter(g:vim_f_hangul_history_char)
+        call s:tillAfter(g:vim_f_hangul_history_char, v:count1)
         return
     elseif g:vim_f_hangul_last_command ==# 'T'
         call s:tillBefore(g:vim_f_hangul_history_char, v:count1)
