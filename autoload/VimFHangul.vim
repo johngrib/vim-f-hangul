@@ -78,20 +78,24 @@ function! VimFHangul#tillAfter() range
 endfunction
 
 " 검색에 사용할 regex string을 생성한다
-function! s:createQuery(char)
+function! s:createQuery(char, prefix, suffix)
     if !has_key(s:alias, a:char)
-        return '['.escape(a:char, '\\').']'
+        return a:prefix . '['.escape(a:char, '\\').']' . a:suffix
     endif
     let l:alias = get(s:alias, a:char)
     let l:start = l:alias['start']
     let l:end = l:alias['end']
-    return '\%#=2['.escape(a:char, '\\').'\d'.l:start.'-\d'.l:end.']'
+    return '\%#=2' . a:prefix . '['.escape(a:char, '\\').'\d'.l:start.'-\d'.l:end.']' . a:suffix
+endfunction
+
+function! s:createSimpleQuery(char)
+    return s:createQuery(a:char, '', '')
 endfunction
 
 " f, F 기능을 구현한다
 function! s:lookup(flag)
 
-    let l:searchStr = s:createQuery(s:char)
+    let l:searchStr = s:createSimpleQuery(s:char)
     let l:success = s:search(l:searchStr, a:flag)
     call s:saveStatus()
     return l:success
@@ -99,12 +103,12 @@ endfunction
 
 " t, T 기능(검색어 바로 앞에 커서를 점프)을 구현한다
 function! s:tillBefore(flag)
-    let l:searchStr = s:createQuery(s:char)
+    let l:searchStr = ''
 
     if a:flag ==# s:forward
-        let l:searchStr = '.' . l:searchStr
+        let l:searchStr = s:createQuery(s:char, '.', '')
     elseif a:flag ==# s:backwardEnd
-        let l:searchStr = l:searchStr . '.'
+        let l:searchStr = s:createQuery(s:char, '', '.')
     endif
 
     let l:success = s:search(l:searchStr, a:flag)
